@@ -1,0 +1,163 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------ *
+ * Design tokens
+ * ------------------------------------------------------------------ */
+@theme {
+  --color-ink: #08080a;
+  --color-pitch: #0b0b0d;
+  --color-charcoal: #131316;
+  --color-smoke: #1b1b1f;
+  --color-ash: #2a2a2f;
+  --color-bone: #e8e3da;
+  --color-bone-dim: #a9a29a;
+  --color-mute: #6f6a64;
+  --color-champagne: #c8a96b;
+  --color-champagne-soft: #e0c894;
+
+  --font-display: var(--font-cormorant), "Times New Roman", serif;
+  --font-sans: var(--font-jost), ui-sans-serif, system-ui, sans-serif;
+
+  /* Cinematic easing — long tail, no bounce. */
+  --ease-silk: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-drape: cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+
+/* ------------------------------------------------------------------ *
+ * Base
+ * ------------------------------------------------------------------ */
+:root {
+  color-scheme: dark;
+}
+
+html {
+  background-color: var(--color-ink);
+  /* Lenis drives scrolling; native smooth would fight it. */
+  scroll-behavior: auto;
+}
+
+body {
+  background-color: var(--color-ink);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  font-synthesis-weight: none;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+::selection {
+  background: var(--color-champagne);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 1px solid var(--color-champagne);
+  outline-offset: 4px;
+}
+
+/* Lenis */
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+/* ------------------------------------------------------------------ *
+ * Typography utilities
+ * ------------------------------------------------------------------ */
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 300;
+  line-height: 0.94;
+  letter-spacing: -0.015em;
+}
+
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--color-mute);
+}
+
+@utility body-copy {
+  font-size: 0.9375rem;
+  line-height: 1.75;
+  letter-spacing: 0.005em;
+  color: var(--color-bone-dim);
+  font-weight: 300;
+}
+
+/* Rule used under section labels and links. */
+@utility hairline {
+  background-color: color-mix(in srgb, var(--color-bone) 12%, transparent);
+}
+
+/* ------------------------------------------------------------------ *
+ * Reveal primitives
+ *
+ * Elements start hidden and are released by GSAP. If JS never runs we
+ * still want readable content, so the hidden state is only applied once
+ * the client marks the document ready.
+ * ------------------------------------------------------------------ */
+[data-reveal-line] {
+  display: block;
+  overflow: hidden;
+}
+html[data-motion="on"] [data-reveal-line] > * {
+  display: block;
+  will-change: transform;
+  transform: translate3d(0, 105%, 0);
+}
+html[data-motion="on"] [data-reveal-fade] {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html[data-motion="on"] [data-reveal-line] > *,
+  html[data-motion="on"] [data-reveal-fade] {
+    transform: none !important;
+    opacity: 1 !important;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Film grain
+ * ------------------------------------------------------------------ */
+@keyframes grain-drift {
+  0%,
+  100% { transform: translate3d(0, 0, 0); }
+  10%  { transform: translate3d(-2%, -3%, 0); }
+  30%  { transform: translate3d(3%, -2%, 0); }
+  50%  { transform: translate3d(-1%, 2%, 0); }
+  70%  { transform: translate3d(2%, 3%, 0); }
+  90%  { transform: translate3d(-3%, 1%, 0); }
+}
+
+.grain {
+  position: fixed;
+  inset: -120%;
+  z-index: 90;
+  pointer-events: none;
+  opacity: 0.32;
+  mix-blend-mode: overlay;
+  animation: grain-drift 6s steps(4, end) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grain { animation: none; }
+}
+
+/* Hide the native cursor only where the custom one is active. */
+html[data-cursor="on"],
+html[data-cursor="on"] * {
+  cursor: none !important;
+}
